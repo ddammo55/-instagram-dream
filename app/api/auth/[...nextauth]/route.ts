@@ -1,3 +1,4 @@
+import { addUser } from '@/service/user';
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 
@@ -10,8 +11,18 @@ const authOptions: NextAuthOptions =  {
     }),
   ],
   callbacks: {
+    // 로그인 성공시 추가로 실행할 함수
+    async signIn({user: {id, name, image, email}}) {
+      if(!email){
+        return false; // 로그인 실패
+      }
+      //console.log(user);
+      addUser({id, name: name || '', image, email, username:email.split('@')[0]});
+      return true; // 로그인 성공 
+    },
+    // 로그인 성공시 세션에 추가할 정보
     async session({ session }) {
-      console.log(session);
+      //console.log(session);
       const user = session?.user;
       if (user) {
         session.user = {
